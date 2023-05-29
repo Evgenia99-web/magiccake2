@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.authtoken.models import Token
 from rest_framework import status
+from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login
@@ -11,8 +12,19 @@ from .serializers import *
 from django.contrib.auth.hashers import make_password
 
 
-class RegistrationView(APIView):
+class RegistrationView(generics.GenericAPIView):
+    serializer_class = UserSerializer
+
     def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        if not username or not password:
+            return Response({'error': 'Please provide all required fields.'}, status=400)
+
+        if User.objects.filter(username=username).exists():
+            return Response({'error': 'Username already exists.'}, status=400)
+
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -41,8 +53,8 @@ class LoginView(APIView):
         login(request, user)
         token, created = Token.objects.get_or_create(user=user)
 
-        # Retrieve related artist info
-        userprofile = get_object_or_404(Artist, user=user)
+        # Retrieve related  info
+        userprofile = get_object_or_404(UserProfile, user=user)
         profile_data = UserProfileSerializer(userprofile).data
 
         # Serialize and return user data with related artist info

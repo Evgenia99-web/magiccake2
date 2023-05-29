@@ -1,9 +1,9 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from .models import *
 
 
-@admin.register(User)
-class CustomUser(admin.ModelAdmin):
+class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'first_name', 'last_name', 'is_staff', 'is_cooker', 'is_customer')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups', 'is_cooker', 'is_customer')
     fieldsets = (
@@ -22,6 +22,10 @@ class CustomUser(admin.ModelAdmin):
     )
     search_fields = ('username', 'first_name', 'last_name', 'email')
     ordering = ('id',)
+    pass
+
+
+admin.site.register(User, CustomUserAdmin)
 
 
 @admin.register(UserProfile)

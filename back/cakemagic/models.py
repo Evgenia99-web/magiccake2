@@ -19,7 +19,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_cooker', False)
         extra_fields.setdefault('is_customer', False)
         user = self.model(email=email, **extra_fields)
-        user.set_password(password)
+        user.set_password(raw_password)
         user.save()
         if user.is_cooker:
             cooker_group, _ = Group.objects.get_or_create(name='Cooker')
